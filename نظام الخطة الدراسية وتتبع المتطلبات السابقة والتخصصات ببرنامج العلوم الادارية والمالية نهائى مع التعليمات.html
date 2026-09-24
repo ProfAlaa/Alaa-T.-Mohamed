@@ -1,0 +1,2172 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام الخطة الدراسية وتتبع المتطلبات السابقة والتخصصات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1b4f72;
+            --secondary-color: #2e86c1;
+            --accent-color: #d4ac0d;
+            --success-color: #27ae60;
+            --danger-dark: #922b21;
+            --available-blue: #2980b9;
+            --bg-color: #ebf5fb;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --elective-purple: #8e44ad;
+        }
+
+        body {
+            font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f2f4f4 0%, #ebf5fb 100%);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        /* شريط متحرك للتنبيهات الأكاديمية */
+        .marquee-container {
+            background: linear-gradient(90deg, #922b21, #c0392b, #922b21);
+            color: white;
+            padding: 10px 0;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 700;
+            font-size: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .marquee-container marquee {
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            background: linear-gradient(135deg, #154360 0%, #1b4f72 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(27, 79, 114, 0.2);
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 4px solid var(--accent-color);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .university-logo {
+            width: 90px;
+            height: 90px;
+            object-fit: contain;
+            background: white;
+            border-radius: 50%;
+            padding: 5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        header h1 {
+            margin: 0 0 5px 0;
+            font-size: 26px;
+            font-weight: 900;
+            color: #f7f9f9;
+        }
+
+        header p {
+            margin: 0;
+            opacity: 0.95;
+            font-size: 15px;
+            color: #d4ac0d;
+            font-weight: 600;
+        }
+
+        .controls-panel {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.06);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #d4e6f1;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        select {
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #aeb6bf;
+            font-size: 14px;
+            background-color: #fff;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 600;
+            color: var(--primary-color);
+            transition: all 0.3s;
+        }
+        select:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 5px rgba(46, 134, 193, 0.4);
+            outline: none;
+        }
+
+        .stats-badge {
+            padding: 10px 18px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 14px;
+            background: linear-gradient(135deg, #e8f8f5, #d1f2eb);
+            color: #117a65;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border: 1px solid #a3e4d7;
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+            background: #fff;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 13px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+            flex-wrap: wrap;
+            border: 1px solid #eaeded;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+        }
+
+        .legend-color {
+            width: 18px;
+            height: 18px;
+            border-radius: 5px;
+        }
+
+        .level-header {
+            background: linear-gradient(135deg, #2980b9, #1a5276);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin: 35px 0 15px 0;
+            font-size: 18px;
+            font-weight: 700;
+            box-shadow: 0 4px 10px rgba(41, 128, 185, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 20px;
+        }
+
+        .semester-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            border-top: 6px solid var(--primary-color);
+            padding: 18px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+            border-left: 1px solid #eaeded;
+            border-right: 1px solid #eaeded;
+            border-bottom: 1px solid #eaeded;
+        }
+        .semester-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+        }
+
+        .semester-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary-color);
+            border-bottom: 2px solid #ebf5fb;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .course-item {
+            border: 1px solid #d4e6f1;
+            border-right: 6px solid var(--available-blue);
+            background-color: #f4f9fd;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .course-item.elective {
+            border-right-color: var(--elective-purple);
+            background-color: #fbf9fc;
+        }
+
+        .course-item.passed {
+            border-color: #abebc6;
+            border-right: 6px solid var(--success-color);
+            background-color: #eafaf1;
+        }
+
+        .course-item.blocked {
+            border-color: #f5b7b1;
+            border-right: 6px solid var(--danger-dark);
+            background-color: #fdedec;
+            opacity: 0.95;
+        }
+
+        .course-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .course-code {
+            background-color: #d4e6f1;
+            color: #1b4f72;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        /* دمج اسم المقرر بالعربية والإنجليزية فى نفس السطر لتقليل المسافات */
+        .course-titles-inline {
+            font-size: 13px;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+        .course-title-ar {
+            color: #2c3e50;
+            font-weight: 700;
+            display: inline;
+        }
+        .course-title-en {
+            color: #7f8c8d;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline;
+        }
+        .course-title-en::before {
+            content: " — ";
+            color: #95a5a6;
+        }
+
+        .prereq-tag {
+            font-size: 11px;
+            color: #78281f;
+            background-color: #fadbd8;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .status-select, .elective-select {
+            width: 100%;
+            margin-top: 6px;
+            padding: 6px;
+            border-radius: 6px;
+            font-size: 12px;
+            border: 1px solid #bdc3c7;
+            background-color: #fff;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .blocked-msg {
+            color: var(--danger-dark);
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .course-item.blocked .blocked-msg {
+            display: block;
+        }
+
+        .track-section {
+            display: none;
+        }
+
+        .track-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<!-- شريط متحرك للتنبيهات الأكاديمية -->
+<div class="marquee-container">
+    <marquee behavior="scroll" direction="right" scrollamount="5">
+        ⚠️ تنبيه هام: يشترط لاستمرار القيد والتسجيل بالبرنامج بعد عامين دراسيين من تاريخ الالتحاق اكتساب الطالب عدد 34 ساعة معتمدة على الأقل وإلا يتعرض للفصل. | يتم التسجيل فى الفصل الدراسى كعبء كامل (17-18 ساعة) بحد اقصى فى حالة حصول الطالب على معدل فصلى 2 فأعلى، ويتم التسجيل لعبء مخفف فى حالة التعثر الدراسى (12 ساعة معتمدة) اذا كان المعدل الفصلى أقل من 2.
+    </marquee>
+</div>
+
+<header>
+    <div class="header-content">
+        <!-- شعار جامعة جنوب الوادي الأهلية -->
+        <img src="https://upload.wikimedia.org/wikipedia/ar/5/58/South_Valley_University_Logo.png" alt="شعار جامعة جنوب الوادي الأهلية" class="university-logo" onerror="this.style.display='none'">
+        <div>
+            <h1>نظام الخطة الدراسية وتتبع المتطلبات السابقة والتخصصات</h1>
+            <p>جامعة جنوب الوادي الأهلية — كلية العلوم الإدارية والمالية — جميع التخصصات</p>
+        </div>
+    </div>
+</header>
+
+<div class="controls-panel">
+    <div class="control-group">
+        <label for="programLanguage"><b>لغة الدراسة:</b></label>
+        <select id="programLanguage" onchange="handleProgramChange()">
+            <option value="ar" selected>البرنامج العربي (Arabic Program)</option>
+            <option value="en">البرنامج الإنجليزي (English Program)</option>
+        </select>
+    </div>
+
+    <div class="control-group">
+        <label for="trackSelect"><b>التخصص:</b></label>
+        <select id="trackSelect" onchange="handleTrackChange()">
+            <option value="BUS_MAN" selected>إدارة الأعمال (Business Management)</option>
+            <option value="ACT_SYS">النظم المحاسبية (Accounting Systems)</option>
+            <option value="FIN_INV">الإدارة المالية والاستثمار (Financial Management & Investment)</option>
+            <option value="BIS">نظم معلومات الاعمال BIS</option>
+        </select>
+    </div>
+
+    <div class="control-group">
+        <label for="gpaSelect"><b>المعدل الفصلي السابق:</b></label>
+        <select id="gpaSelect" onchange="updateAcademicLoad()">
+            <option value="2">2.0 فأكثر (العبء الكامل: 17-18 ساعة)</option>
+            <option value="1.99">أقل من 2.0 (العبء المخفف: 12 ساعة)</option>
+        </select>
+    </div>
+
+    <div class="stats-badge">
+        الحد الأقصى المسموح: <span id="maxHours">18</span> ساعة
+    </div>
+</div>
+
+<div class="legend">
+    <div class="legend-item">
+        <div class="legend-color" style="background: #2980b9;"></div>
+        <span>مقرر متاح للتسجيل</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-color" style="background: #8e44ad;"></div>
+        <span>مقرر اختياري تخصص</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-color" style="background: #922b21;"></div>
+        <span>مقرر غير متاح للتسجيل</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-color" style="background: #27ae60;"></div>
+        <span>مقرر مُجتاز / ناجح</span>
+    </div>
+</div>
+
+<!-- ================= المستوى الأول (عام) ================= -->
+<div class="level-header"><span>المستوى الأول</span><span>عدد الساعات: 34 ساعة (الفصل الأول: 17 | الفصل الثاني: 17)</span></div>
+<div class="grid-container">
+    <div class="semester-card">
+        <div class="semester-title"><span>الفصل الدراسي الأول</span><span>17 ساعة</span></div>
+        <div class="course-item" id="card-ACT111" data-code="ACT111">
+            <div class="course-header"><span class="course-code">ACT111</span><span>3 ساعات</span></div>
+            <div class="course-titles-inline">
+                <span class="course-title-ar">مبادئ المحاسبة المالية</span>
+                <span class="course-title-en">Principles of Financial Accounting</span>
+            </div>
+            <select class="status-select" onchange="updateCourseStatus('ACT111', this.value)">
+                <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                <option value="passed">ناجح (Passed)</option>
+                <option value="failed">راسب (Failed)</option>
+            </select>
+        </div>
+        <div class="course-item" id="card-MAN111" data-code="MAN111">
+            <div class="course-header"><span class="course-code">MAN111</span><span>3 ساعات</span></div>
+            <div class="course-titles-inline">
+                <span class="course-title-ar">أساسيات إدارة الأعمال</span>
+                <span class="course-title-en">Basics of Business Administration</span>
+            </div>
+            <select class="status-select" onchange="updateCourseStatus('MAN111', this.value)">
+                <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                <option value="passed">ناجح (Passed)</option>
+                <option value="failed">راسب (Failed)</option>
+            </select>
+        </div>
+        <div class="course-item" id="card-ECO111" data-code="ECO111">
+            <div class="course-header"><span class="course-code">ECO111</span><span>3 ساعات</span></div>
+            <div class="course-titles-inline">
+                <span class="course-title-ar">مبادئ الاقتصاد الجزئي</span>
+                <span class="course-title-en">Principles of Microeconomics</span>
+            </div>
+            <select class="status-select" onchange="updateCourseStatus('ECO111', this.value)">
+                <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                <option value="passed">ناجح (Passed)</option>
+                <option value="failed">راسب (Failed)</option>
+            </select>
+        </div>
+        <div class="course-item" id="card-DQT111" data-code="DQT111">
+            <div class="course-header"><span class="course-code">DQT111</span><span>3 ساعات</span></div>
+            <div class="course-titles-inline">
+                <span class="course-title-ar">رياضيات التمويل والأعمال</span>
+                <span class="course-title-en">Mathematics of Finance and Business</span>
+            </div>
+            <select class="status-select" onchange="updateCourseStatus('DQT111', this.value)">
+                <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                <option value="passed">ناجح (Passed)</option>
+                <option value="failed">راسب (Failed)</option>
+            </select>
+        </div>
+        <div class="course-item" id="card-DQT112" data-code="DQT112">
+            <div class="course-header"><span class="course-code">DQT112</span><span>3 ساعات</span></div>
+            <div class="course-titles-inline">
+                <span class="course-title-ar">مقدمة في الحاسب الآلي للتجاريين</span>
+                <span class="course-title-en">Computer Science Foundations</span>
+            </div>
+            <select class="status-select" onchange="updateCourseStatus('DQT112', this.value)">
+                <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                <option value="passed">ناجح (Passed)</option>
+                <option value="failed">راسب (Failed)</option>
+            </select>
+        </div>
+        <div class="course-item" id="card-UNC111" data-code="UNC111">
+            <div class="course-header"><span class="course-code">UNC111</span><span>ساعتان</span></div>
+            <div class="course-titles-inline">
+                <span class="course-title-ar">قضايا مجتمعية (متطلب جامعة)</span>
+                <span class="course-title-en">Community Issues</span>
+            </div>
+            <select class="status-select" onchange="updateCourseStatus('UNC111', this.value)">
+                <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                <option value="passed">ناجح (Passed)</option>
+                <option value="failed">راسب (Failed)</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="semester-card">
+        <div class="semester-title"><span>الفصل الدراسي الثاني</span><span>17 ساعة</span></div>
+        <div class="course-item" id="card-ACT122" data-code="ACT122" data-prereq="ACT111">
+            <div class="course-header"><span class="course-code">ACT122</span><span>3 ساعات</span></div>
+            <div class="course-titles-inline">
+                <span class="course-title-ar">طرق المحاسبة والتقارير المالية</span>
+                <span class="course-title-en">Accounting Methods and Financial Reports</span>
+            </div>
+            <div class="prereq-tag">المتطلب السابق: ACT111 (مبادئ المحاسبة المالية)</div>
+            <select class="status-select" onchange="updateCourseStatus('ACT122', this.value)">
+                <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                <option value="passed">ناجح (Passed)</option>
+                <option value="failed">راسب (Failed)</option>
+            </select>
+            <div class="blocked-msg">⛔ غير متاح: يتطلب النجاح في مقرر ACT111 أولاً</div>
+        </div>
+        <div class="course-item" id="card-ACT123" data-code="ACT123">
+            <div class="course-header"><span class="course-code">ACT123</span><span>3 ساعات</span></div>
+            <div class="course-titles-inline">
+                <span class="course-title-ar" id="title-ACT123-ar">دراسات محاسبية بلغة انجليزية</span>
+                <span class="course-title-en" id="title-ACT123-en">Accounting Studies in English</span>
+            </div>
+            <select class="status-select" onchange="updateCourseStatus('ACT123', this.value)">
+                <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                <option value="passed">ناجح (Passed)</option>
+                <option value="failed">راسب (Failed)</option>
+            </select>
+        </div>
+        <div class="course-item" id="card-MAN122" data-code="MAN122">
+            <div class="course-header"><span class="course-code">MAN122</span><span>3 ساعات</span></div>
+            <div class="course-titles-inline">
+                <span class="course-title-ar">السلوك التنظيمي</span>
+                <span class="course-title-en">Organizational Behavior</span>
+            </div>
+            <select class="status-select" onchange="updateCourseStatus('MAN122', this.value)">
+                <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                <option value="passed">ناجح (Passed)</option>
+                <option value="failed">راسب (Failed)</option>
+            </select>
+        </div>
+        <div class="course-item" id="card-ECO122" data-code="ECO122">
+            <div class="course-header"><span class="course-code">ECO122</span><span>3 ساعات</span></div>
+            <div class="course-titles-inline">
+                <span class="course-title-ar">مبادئ الاقتصاد الكلي</span>
+                <span class="course-title-en">Principles of Macroeconomics</span>
+            </div>
+            <select class="status-select" onchange="updateCourseStatus('ECO122', this.value)">
+                <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                <option value="passed">ناجح (Passed)</option>
+                <option value="failed">راسب (Failed)</option>
+            </select>
+        </div>
+        <div class="course-item" id="card-ECO123" data-code="ECO123">
+            <div class="course-header"><span class="course-code">ECO123</span><span>3 ساعات</span></div>
+            <div class="course-titles-inline">
+                <span class="course-title-ar">اقتصاديات النقود والبنوك</span>
+                <span class="course-title-en">The Economics of Money and Banking</span>
+            </div>
+            <select class="status-select" onchange="updateCourseStatus('ECO123', this.value)">
+                <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                <option value="passed">ناجح (Passed)</option>
+                <option value="failed">راسب (Failed)</option>
+            </select>
+        </div>
+        <div class="course-item" id="card-LAW121" data-code="LAW121">
+            <div class="course-header"><span class="course-code">LAW121</span><span>ساعتان</span></div>
+            <div class="course-titles-inline">
+                <span class="course-title-ar">قانون الأعمال (متطلب كلية)</span>
+                <span class="course-title-en">Business Law</span>
+            </div>
+            <select class="status-select" onchange="updateCourseStatus('LAW121', this.value)">
+                <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                <option value="passed">ناجح (Passed)</option>
+                <option value="failed">راسب (Failed)</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- ================= المستوى الثاني (عام) ================= -->
+<div class="level-header"><span>المستوى الثاني</span><span>عدد الساعات: 34 ساعة (الفصل الثالث: 17 | الفصل الرابع: 17)</span></div>
+<div class="grid-container">
+    <div class="semester-card">
+        <div class="semester-title"><span>الفصل الدراسي الثالث</span><span>17 ساعة</span></div>
+        <div class="course-item" id="card-ACT214" data-code="ACT214" data-prereq="ACT111">
+            <div class="course-header"><span class="course-code">ACT214</span><span>3 ساعات</span></div>
+            <div class="course-titles-inline">
+                <span class="course-title-ar">المحاسبة في شركات الأشخاص</span>
+                <span class="course-title-en">Accounting for Partnerships</span>
+            </div>
+            <div class="prereq-tag">المتطلب السابق: ACT111 (مبادئ المحاسبة المالية)</div>
+            <select class="status-select" onchange="updateCourseStatus('ACT214', this.value)">
+                <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                <option value="passed">ناجح (Passed)</option>
+                <option value="failed">راسب (Failed)</option>
+            </select>
+            <div class="blocked-msg">⛔ غير متاح: يتطلب النجاح في مقرر ACT111 أولاً</div>
+        </div>
+        <div class="course-item" id="card-ACT215" data-code="ACT215">
+            <div class="course-header"><span class="course-code">ACT215</span><span>3 ساعات</span></div>
+            <div class="course-titles-inline">
+                <span class="course-title-ar">المحاسبة في المنشآت الصغيرة والمتوسطة</span>
+                <span class="course-title-en">Accounting for SMEs</span>
+            </div>
+            <select class="status-select" onchange="updateCourseStatus('ACT215', this.value)">
+                <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                <option value="passed">ناجح (Passed)</option>
+                <option value="failed">راسب (Failed)</option>
+            </select>
+        </div>
+        <div class="course-item" id="card-MAN213" data-code="MAN213">
+            <div class="course-header"><span class="course-code">MAN213</span><span>3 ساعات</span></div>
+            <div class="course-titles-inline">
+                <span class="course-title-ar">أساسيات إدارة التسويق</span>
+                <span class="course-title-en">Basics of Marketing Management</span>
+            </div>
+            <select class="status-select" onchange="updateCourseStatus('MAN213', this.value)">
+                <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                <option value="passed">ناجح (Passed)</option>
+                <option value="failed">راسب (Failed)</option>
+            </select>
+        </div>
+        <div class="course-item" id="card-MAN214" data-code="MAN214">
+            <div class="course-header"><span class="course-code">MAN214</span><span>3 ساعات</span></div>
+            <div class="course-titles-inline">
+                <span class="course-title-ar" id="title-MAN214-ar">دراسات إدارية بلغة انجليزية</span>
+                <span class="course-title-en" id="title-MAN214-en">Managerial Studies in English</span>
+            </div>
+            <select class="status-select" onchange="updateCourseStatus('MAN214', this.value)">
+                <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                <option value="passed">ناجح (Passed)</option>
+                <option value="failed">راسب (Failed)</option>
+            </select>
+        </div>
+        <div class="course-item" id="card-ECO214" data-code="ECO214">
+            <div class="course-header"><span class="course-code">ECO214</span><span>3 ساعات</span></div>
+            <div class="course-titles-inline">
+                <span class="course-title-ar">اقتصاد إداري</span>
+                <span class="course-title-en">Managerial Economics</span>
+            </div>
+            <select class="status-select" onchange="updateCourseStatus('ECO214', this.value)">
+                <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                <option value="passed">ناجح (Passed)</option>
+                <option value="failed">راسب (Failed)</option>
+            </select>
+        </div>
+        <div class="course-item" id="card-DQT213" data-code="DQT213">
+            <div class="course-header"><span class="course-code">DQT213</span><span>ساعتان</span></div>
+            <div class="course-titles-inline">
+                <span class="course-title-ar">الإحصاء الوصفي</span>
+                <span class="course-title-en">Descriptive Statistics</span>
+            </div>
+            <select class="status-select" onchange="updateCourseStatus('DQT213', this.value)">
+                <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                <option value="passed">ناجح (Passed)</option>
+                <option value="failed">راسب (Failed)</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="semester-card">
+        <div class="semester-title"><span>الفصل الدراسي الرابع</span><span>17 ساعة</span></div>
+        <div class="course-item" id="card-ACT226" data-code="ACT226">
+            <div class="course-header"><span class="course-code">ACT226</span><span>3 ساعات</span></div>
+            <div class="course-titles-inline">
+                <span class="course-title-ar">المحاسبة في شركات الأموال</span>
+                <span class="course-title-en">Accounting for Corporations</span>
+            </div>
+            <select class="status-select" onchange="updateCourseStatus('ACT226', this.value)">
+                <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                <option value="passed">ناجح (Passed)</option>
+                <option value="failed">راسب (Failed)</option>
+            </select>
+        </div>
+        <div class="course-item" id="card-MAN225" data-code="MAN225">
+            <div class="course-header"><span class="course-code">MAN225</span><span>3 ساعات</span></div>
+            <div class="course-titles-inline">
+                <span class="course-title-ar">إدارة الموارد البشرية</span>
+                <span class="course-title-en">Human Resources Management</span>
+            </div>
+            <select class="status-select" onchange="updateCourseStatus('MAN225', this.value)">
+                <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                <option value="passed">ناجح (Passed)</option>
+                <option value="failed">راسب (Failed)</option>
+            </select>
+        </div>
+        <div class="course-item" id="card-MAN226" data-code="MAN226" data-prereq="MAN111">
+            <div class="course-header"><span class="course-code">MAN226</span><span>3 ساعات</span></div>
+            <div class="course-titles-inline">
+                <span class="course-title-ar">إدارة الإنتاج والعمليات</span>
+                <span class="course-title-en">Production & Operations Management</span>
+            </div>
+            <div class="prereq-tag">المتطلب السابق: MAN111 (أساسيات إدارة الأعمال)</div>
+            <select class="status-select" onchange="updateCourseStatus('MAN226', this.value)">
+                <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                <option value="passed">ناجح (Passed)</option>
+                <option value="failed">راسب (Failed)</option>
+            </select>
+            <div class="blocked-msg">⛔ غير متاح: يتطلب النجاح في مقرر MAN111 أولاً</div>
+        </div>
+        <div class="course-item" id="card-DQT224" data-code="DQT224" data-prereq="DQT213">
+            <div class="course-header"><span class="course-code">DQT224</span><span>3 ساعات</span></div>
+            <div class="course-titles-inline">
+                <span class="course-title-ar">الإحصاء الاستدلالي</span>
+                <span class="course-title-en">Inferential Statistics</span>
+            </div>
+            <div class="prereq-tag">المتطلب السابق: DQT213 (الإحصاء الوصفي)</div>
+            <select class="status-select" onchange="updateCourseStatus('DQT224', this.value)">
+                <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                <option value="passed">ناجح (Passed)</option>
+                <option value="failed">راسب (Failed)</option>
+            </select>
+            <div class="blocked-msg">⛔ غير متاح: يتطلب النجاح في مقرر DQT213 أولاً</div>
+        </div>
+        <div class="course-item" id="card-DQT225" data-code="DQT225" data-prereq="DQT111">
+            <div class="course-header"><span class="course-code">DQT225</span><span>3 ساعات</span></div>
+            <div class="course-titles-inline">
+                <span class="course-title-ar">مبادئ الخطر والتأمين</span>
+                <span class="course-title-en">Principles of Risk and Insurance</span>
+            </div>
+            <div class="prereq-tag">المتطلب السابق: DQT111 (رياضيات التمويل والأعمال)</div>
+            <select class="status-select" onchange="updateCourseStatus('DQT225', this.value)">
+                <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                <option value="passed">ناجح (Passed)</option>
+                <option value="failed">راسب (Failed)</option>
+            </select>
+            <div class="blocked-msg">⛔ غير متاح: يتطلب النجاح في مقرر DQT111 أولاً</div>
+        </div>
+        <div class="course-item" id="card-UNC222" data-code="UNC222">
+            <div class="course-header"><span class="course-code">UNC222</span><span>ساعتان</span></div>
+            <div class="course-titles-inline">
+                <span class="course-title-ar">ريادة الأعمال (متطلب جامعة)</span>
+                <span class="course-title-en">Entrepreneurship</span>
+            </div>
+            <select class="status-select" onchange="updateCourseStatus('UNC222', this.value)">
+                <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                <option value="passed">ناجح (Passed)</option>
+                <option value="failed">راسب (Failed)</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- ================= تخصص إدارة الأعمال ================= -->
+<div id="track-BUS_MAN" class="track-section active">
+    <div class="level-header"><span>المستوى الثالث - تخصص إدارة الأعمال</span><span>عدد الساعات: 36 ساعة</span></div>
+    <div class="grid-container">
+        <div class="semester-card">
+            <div class="semester-title"><span>الفصل الدراسي الخامس</span><span>18 ساعة</span></div>
+            <div class="course-item" id="card-MAN317" data-code="MAN317" data-prereq="MAN111">
+                <div class="course-header"><span class="course-code">MAN317</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">الإدارة الإستراتيجية</span>
+                    <span class="course-title-en">Strategic Management</span>
+                </div>
+                <div class="prereq-tag">المتطلب السابق: MAN111 (أساسيات إدارة الأعمال)</div>
+                <select class="status-select" onchange="updateCourseStatus('MAN317', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+                <div class="blocked-msg">⛔ غير متاح: يتطلب النجاح في مقرر MAN111 أولاً</div>
+            </div>
+            <div class="course-item" id="card-MAN318" data-code="MAN318" data-prereq="MAN226">
+                <div class="course-header"><span class="course-code">MAN318</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">تخطيط ومراقبة الإنتاج</span>
+                    <span class="course-title-en">Production Planning & Control</span>
+                </div>
+                <div class="prereq-tag">المتطلب السابق: MAN226 (إدارة الإنتاج والعمليات)</div>
+                <select class="status-select" onchange="updateCourseStatus('MAN318', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+                <div class="blocked-msg">⛔ غير متاح: يتطلب النجاح في مقرر MAN226 أولاً</div>
+            </div>
+            <div class="course-item" id="card-ACT317_BUS" data-code="ACT317">
+                <div class="course-header"><span class="course-code">ACT317</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">مبادئ محاسبة التكاليف</span>
+                    <span class="course-title-en">Principles of Cost Accounting</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('ACT317', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-ECO315_BUS" data-code="ECO315">
+                <div class="course-header"><span class="course-code">ECO315</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar" id="title-ECO315-ar">دراسات اقتصادية بلغة إنجليزية</span>
+                    <span class="course-title-en" id="title-ECO315-en">Economic Studies in English</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('ECO315', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-ECO316_BUS" data-code="ECO316">
+                <div class="course-header"><span class="course-code">ECO316</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">اقتصاديات المالية العامة</span>
+                    <span class="course-title-en">Public Finance Economics</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('ECO316', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item elective" id="card-ELECTIVE5_BUS">
+                <div class="course-header"><span class="course-code" id="elective5_bus-code">اختياري</span><span>3 ساعات</span></div>
+                <div style="margin-bottom: 5px; font-weight: bold; font-size: 13px;">اختر المقرر الاختياري:</div>
+                <select class="elective-select" id="elective5_bus-choice" onchange="handleElectiveChoice('ELECTIVE5_BUS', this.value)">
+                    <option value="">-- اختر مقراً من بين المقررين --</option>
+                    <option value="MAN319">MAN319 - الإدارة الإلكترونية</option>
+                    <option value="MAN3110">MAN3110 - تطبيقات إدارية على الحاسب</option>
+                </select>
+                <select class="status-select" id="elective5_bus-status" style="display:none;" onchange="updateElectiveStatus('ELECTIVE5_BUS', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="semester-card">
+            <div class="semester-title"><span>الفصل الدراسي السادس</span><span>18 ساعة</span></div>
+            <div class="course-item" id="card-MAN3211" data-code="MAN3211" data-prereq="MAN226">
+                <div class="course-header"><span class="course-code">MAN3211</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">إدارة الإنتاج والعمليات - مدخل كمي</span>
+                    <span class="course-title-en">Production & Operations Management - Quantitative Approach</span>
+                </div>
+                <div class="prereq-tag">المتطلب السابق: MAN226 (إدارة الإنتاج والعمليات)</div>
+                <select class="status-select" onchange="updateCourseStatus('MAN3211', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+                <div class="blocked-msg">⛔ غير متاح: يتطلب النجاح في مقرر MAN226 أولاً</div>
+            </div>
+            <div class="course-item" id="card-MAN3212" data-code="MAN3212" data-prereq="MAN213">
+                <div class="course-header"><span class="course-code">MAN3212</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">بحوث التسويق</span>
+                    <span class="course-title-en">Marketing Research</span>
+                </div>
+                <div class="prereq-tag">المتطلب السابق: MAN213 (أساسيات إدارة التسويق)</div>
+                <select class="status-select" onchange="updateCourseStatus('MAN3212', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+                <div class="blocked-msg">⛔ غير متاح: يتطلب النجاح في مقرر MAN213 أولاً</div>
+            </div>
+            <div class="course-item" id="card-MAN3213" data-code="MAN3213">
+                <div class="course-header"><span class="course-code">MAN3213</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">أخلاقيات الأعمال والمسؤولية الاجتماعية</span>
+                    <span class="course-title-en">Business Ethics & Social Responsibility</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN3213', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-MAN3214_BUS" data-code="MAN3214">
+                <div class="course-header"><span class="course-code">MAN3214</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">الإدارة المالية والتمويل</span>
+                    <span class="course-title-en">Financial Management & Finance</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN3214', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-DQT326_BUS" data-code="DQT326" data-prereq="DQT112">
+                <div class="course-header"><span class="course-code">DQT326</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">برمجيات إحصائية للتجاريين</span>
+                    <span class="course-title-en">Statistical Software for Business</span>
+                </div>
+                <div class="prereq-tag">المتطلب السابق: DQT112 (مقدمة في الحاسب الآلي للتجاريين)</div>
+                <select class="status-select" onchange="updateCourseStatus('DQT326', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+                <div class="blocked-msg">⛔ غير متاح: يتطلب النجاح في مقرر DQT112 أولاً</div>
+            </div>
+            <div class="course-item elective" id="card-ELECTIVE6_BUS">
+                <div class="course-header"><span class="course-code" id="elective6_bus-code">اختياري</span><span>3 ساعات</span></div>
+                <div style="margin-bottom: 5px; font-weight: bold; font-size: 13px;">اختر المقرر الاختياري:</div>
+                <select class="elective-select" id="elective6_bus-choice" onchange="handleElectiveChoice('ELECTIVE6_BUS', this.value)">
+                    <option value="">-- اختر مقراً من بين المقررين --</option>
+                    <option value="MAN3215">MAN3215 - إدارة الجودة الشاملة</option>
+                    <option value="MAN3216">MAN3216 - إدارة الأزمات</option>
+                </select>
+                <select class="status-select" id="elective6_bus-status" style="display:none;" onchange="updateElectiveStatus('ELECTIVE6_BUS', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="level-header"><span>المستوى الرابع - تخصص إدارة الأعمال</span><span>عدد الساعات: 36 ساعة</span></div>
+    <div class="grid-container">
+        <div class="semester-card">
+            <div class="semester-title"><span>الفصل الدراسي السابع</span><span>18 ساعة</span></div>
+            <div class="course-item" id="card-MAN4117" data-code="MAN4117">
+                <div class="course-header"><span class="course-code">MAN4117</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">نظم معلومات إدارية</span>
+                    <span class="course-title-en">Management Information Systems</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN4117', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-MAN4118" data-code="MAN4118">
+                <div class="course-header"><span class="course-code">MAN4118</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">إدارة المخازن والمواد</span>
+                    <span class="course-title-en">Materials & Inventory Management</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN4118', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-MAN4119" data-code="MAN4119">
+                <div class="course-header"><span class="course-code">MAN4119</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">طرق البحث العلمي في الإدارة</span>
+                    <span class="course-title-en">Research Methods in Management</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN4119', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-MAN4120_BUS" data-code="MAN4120">
+                <div class="course-header"><span class="course-code">MAN4120</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">إدارة المشروعات الاستثمارية</span>
+                    <span class="course-title-en">Investment Project Management</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN4120', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-ACT4119_BUS" data-code="ACT4119">
+                <div class="course-header"><span class="course-code">ACT4119</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">محاسبة إدارية</span>
+                    <span class="course-title-en">Managerial Accounting</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('ACT4119', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item elective" id="card-ELECTIVE7_BUS">
+                <div class="course-header"><span class="course-code" id="elective7_bus-code">اختياري</span><span>3 ساعات</span></div>
+                <div style="margin-bottom: 5px; font-weight: bold; font-size: 13px;">اختر المقرر الاختياري:</div>
+                <select class="elective-select" id="elective7_bus-choice" onchange="handleElectiveChoice('ELECTIVE7_BUS', this.value)">
+                    <option value="">-- اختر مقراً من بين المقررين --</option>
+                    <option value="MAN4121">MAN4121 - إدارة التفاوض</option>
+                    <option value="MAN4122">MAN4122 - إدارة الصراع وضغوط العمل</option>
+                </select>
+                <select class="status-select" id="elective7_bus-status" style="display:none;" onchange="updateElectiveStatus('ELECTIVE7_BUS', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="semester-card">
+            <div class="semester-title"><span>الفصل الدراسي الثامن</span><span>18 ساعة</span></div>
+            <div class="course-item" id="card-MAN4223" data-code="MAN4223">
+                <div class="course-header"><span class="course-code">MAN4223</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">إدارة الأعمال الدولية</span>
+                    <span class="course-title-en">International Business Management</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN4223', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-MAN4224" data-code="MAN4224">
+                <div class="course-header"><span class="course-code">MAN4224</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">إدارة الإتصالات التنظيمية</span>
+                    <span class="course-title-en">Organizational Communication Management</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN4224', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-MAN4225" data-code="MAN4225">
+                <div class="course-header"><span class="course-code">MAN4225</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">بحث تخرج</span>
+                    <span class="course-title-en">Graduation Project</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN4225', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-DQT427_BUS" data-code="DQT427" data-prereq="DQT224">
+                <div class="course-header"><span class="course-code">DQT427</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">بحوث العمليات</span>
+                    <span class="course-title-en">Operations Research</span>
+                </div>
+                <div class="prereq-tag">المتطلب السابق: DQT224 (الإحصاء الاستدلالي)</div>
+                <select class="status-select" onchange="updateCourseStatus('DQT427', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+                <div class="blocked-msg">⛔ غير متاح: يتطلب النجاح في مقرر DQT224 أولاً</div>
+            </div>
+            <div class="course-item" id="card-ECO4224_BUS" data-code="ECO4224">
+                <div class="course-header"><span class="course-code">ECO4224</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">تنمية اقتصادية</span>
+                    <span class="course-title-en">Economic Development</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('ECO4224', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item elective" id="card-ELECTIVE8_BUS">
+                <div class="course-header"><span class="course-code" id="elective8_bus-code">اختياري</span><span>3 ساعات</span></div>
+                <div style="margin-bottom: 5px; font-weight: bold; font-size: 13px;">اختر المقرر الاختياري:</div>
+                <select class="elective-select" id="elective8_bus-choice" onchange="handleElectiveChoice('ELECTIVE8_BUS', this.value)">
+                    <option value="">-- اختر مقراً من بين المقررين --</option>
+                    <option value="MAN4226">MAN4226 - اتخاذ قرارات - مدخل كمي (يتطلب MAN111)</option>
+                    <option value="MAN4227">MAN4227 - قضايا إدارية معاصرة</option>
+                </select>
+                <select class="status-select" id="elective8_bus-status" style="display:none;" onchange="updateElectiveStatus('ELECTIVE8_BUS', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= تخصص النظم المحاسبية ================= -->
+<div id="track-ACT_SYS" class="track-section">
+    <div class="level-header"><span>المستوى الثالث - تخصص النظم المحاسبية</span><span>عدد الساعات: 36 ساعة</span></div>
+    <div class="grid-container">
+        <div class="semester-card">
+            <div class="semester-title"><span>الفصل الدراسي الخامس</span><span>18 ساعة</span></div>
+            <div class="course-item" id="card-ACT317_ACT" data-code="ACT317">
+                <div class="course-header"><span class="course-code">ACT317</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">مبادئ محاسبة التكاليف</span>
+                    <span class="course-title-en">Principles of Cost Accounting</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('ACT317', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-ACT318" data-code="ACT318">
+                <div class="course-header"><span class="course-code">ACT318</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">مبادئ الرقابة والمراجعة</span>
+                    <span class="course-title-en">Principles of Auditing & Internal Control</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('ACT318', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-ACT319" data-code="ACT319">
+                <div class="course-header"><span class="course-code">ACT319</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">المحاسبة عن ضرائب الدخل</span>
+                    <span class="course-title-en">Income Tax Accounting</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('ACT319', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-ECO315_ACT" data-code="ECO315">
+                <div class="course-header"><span class="course-code">ECO315</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">دراسات إقتصادية بلغة إنجليزية</span>
+                    <span class="course-title-en">Economic Studies in English</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('ECO315', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-ECO316_ACT" data-code="ECO316">
+                <div class="course-header"><span class="course-code">ECO316</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">اقتصاديات المالية العامة</span>
+                    <span class="course-title-en">Public Finance Economics</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('ECO316', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item elective" id="card-ELECTIVE5_ACT">
+                <div class="course-header"><span class="course-code" id="elective5_act-code">اختياري</span><span>3 ساعات</span></div>
+                <div style="margin-bottom: 5px; font-weight: bold; font-size: 13px;">اختر المقرر الاختياري:</div>
+                <select class="elective-select" id="elective5_act-choice" onchange="handleElectiveChoice('ELECTIVE5_ACT', this.value)">
+                    <option value="">-- اختر مقراً من بين المقررين --</option>
+                    <option value="ACT3110">ACT3110 - التقييم المحاسبي للمشروعات</option>
+                    <option value="ACT3111">ACT3111 - المحاسبة الاجتماعية والبيئية</option>
+                </select>
+                <select class="status-select" id="elective5_act-status" style="display:none;" onchange="updateElectiveStatus('ELECTIVE5_ACT', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="semester-card">
+            <div class="semester-title"><span>الفصل الدراسي السادس</span><span>18 ساعة</span></div>
+            <div class="course-item" id="card-ACT3212" data-code="ACT3212">
+                <div class="course-header"><span class="course-code">ACT3212</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">محاسبة حكومية وقومية</span>
+                    <span class="course-title-en">Governmental & National Accounting</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('ACT3212', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-ACT3213" data-code="ACT3213" data-prereq="ACT122">
+                <div class="course-header"><span class="course-code">ACT3213</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">محاسبة متخصصة</span>
+                    <span class="course-title-en">Specialized Accounting</span>
+                </div>
+                <div class="prereq-tag">المتطلب السابق: ACT122 (طرق المحاسبة والتقارير المالية)</div>
+                <select class="status-select" onchange="updateCourseStatus('ACT3213', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+                <div class="blocked-msg">⛔ غير متاح: يتطلب النجاح في مقرر ACT122 أولاً</div>
+            </div>
+            <div class="course-item" id="card-ACT3214" data-code="ACT3214">
+                <div class="course-header"><span class="course-code">ACT3214</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">المحاسبة في المنشآت المالية</span>
+                    <span class="course-title-en">Accounting for Financial Institutions</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('ACT3214', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-MAN3214_ACT" data-code="MAN3214">
+                <div class="course-header"><span class="course-code">MAN3214</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">الإدارة المالية والتمويل</span>
+                    <span class="course-title-en">Financial Management & Finance</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN3214', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-DQT326_ACT" data-code="DQT326" data-prereq="DQT112">
+                <div class="course-header"><span class="course-code">DQT326</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">برمجيات إحصائية للتجاريين</span>
+                    <span class="course-title-en">Statistical Software for Business</span>
+                </div>
+                <div class="prereq-tag">المتطلب السابق: DQT112 (مقدمة في الحاسب الآلي للتجاريين)</div>
+                <select class="status-select" onchange="updateCourseStatus('DQT326', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+                <div class="blocked-msg">⛔ غير متاح: يتطلب النجاح في مقرر DQT112 أولاً</div>
+            </div>
+            <div class="course-item elective" id="card-ELECTIVE6_ACT">
+                <div class="course-header"><span class="course-code" id="elective6_act-code">اختياري</span><span>3 ساعات</span></div>
+                <div style="margin-bottom: 5px; font-weight: bold; font-size: 13px;">اختر المقرر الاختياري:</div>
+                <select class="elective-select" id="elective6_act-choice" onchange="handleElectiveChoice('ELECTIVE6_ACT', this.value)">
+                    <option value="">-- اختر مقراً من بين المقررين --</option>
+                    <option value="ACT3215">ACT3215 - المحاسبة في المنشآت الخدمية</option>
+                    <option value="ACT3216">ACT3216 - المحاسبة الدولية</option>
+                </select>
+                <select class="status-select" id="elective6_act-status" style="display:none;" onchange="updateElectiveStatus('ELECTIVE6_ACT', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="level-header"><span>المستوى الرابع - تخصص النظم المحاسبية</span><span>عدد الساعات: 36 ساعة</span></div>
+    <div class="grid-container">
+        <div class="semester-card">
+            <div class="semester-title"><span>الفصل الدراسي السابع</span><span>18 ساعة</span></div>
+            <div class="course-item" id="card-ACT4117" data-code="ACT4117">
+                <div class="course-header"><span class="course-code">ACT4117</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">المحاسبة عن الضرائب غير المباشرة</span>
+                    <span class="course-title-en">Indirect Tax Accounting</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('ACT4117', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-ACT4118" data-code="ACT4118">
+                <div class="course-header"><span class="course-code">ACT4118</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">نظم المعلومات المحاسبية</span>
+                    <span class="course-title-en">Accounting Information Systems</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('ACT4118', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-ACT4119_ACT" data-code="ACT4119">
+                <div class="course-header"><span class="course-code">ACT4119</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">محاسبة إدارية</span>
+                    <span class="course-title-en">Managerial Accounting</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('ACT4119', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-ACT4120" data-code="ACT4120" data-prereq="ACT317">
+                <div class="course-header"><span class="course-code">ACT4120</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">محاسبة تكاليف متقدمة</span>
+                    <span class="course-title-en">Advanced Cost Accounting</span>
+                </div>
+                <div class="prereq-tag">المتطلب السابق: ACT317 (مبادئ محاسبة التكاليف)</div>
+                <select class="status-select" onchange="updateCourseStatus('ACT4120', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+                <div class="blocked-msg">⛔ غير متاح: يتطلب النجاح في مقرر ACT317 أولاً</div>
+            </div>
+            <div class="course-item" id="card-MAN4120_ACT" data-code="MAN4120">
+                <div class="course-header"><span class="course-code">MAN4120</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">ادارة المشروعات الاستثمارية</span>
+                    <span class="course-title-en">Investment Project Management</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN4120', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item elective" id="card-ELECTIVE7_ACT">
+                <div class="course-header"><span class="course-code" id="elective7_act-code">اختياري</span><span>3 ساعات</span></div>
+                <div style="margin-bottom: 5px; font-weight: bold; font-size: 13px;">اختر المقرر الاختياري:</div>
+                <select class="elective-select" id="elective7_act-choice" onchange="handleElectiveChoice('ELECTIVE7_ACT', this.value)">
+                    <option value="">-- اختر مقراً من بين المقررين --</option>
+                    <option value="ACT4121">ACT4121 - المحاسبة في أسواق المال</option>
+                    <option value="ACT4122">ACT4122 - مراجعة النظم الإلكترونية</option>
+                </select>
+                <select class="status-select" id="elective7_act-status" style="display:none;" onchange="updateElectiveStatus('ELECTIVE7_ACT', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="semester-card">
+            <div class="semester-title"><span>الفصل الدراسي الثامن</span><span>18 ساعة</span></div>
+            <div class="course-item" id="card-ACT4223" data-code="ACT4223">
+                <div class="course-header"><span class="course-code">ACT4223</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">محاسبة إلكترونية</span>
+                    <span class="course-title-en">Electronic Accounting</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('ACT4223', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-ACT4224" data-code="ACT4224" data-prereq="ACT318">
+                <div class="course-header"><span class="course-code">ACT4224</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">مراجعة متقدمة</span>
+                    <span class="course-title-en">Advanced Auditing</span>
+                </div>
+                <div class="prereq-tag">المتطلب السابق: ACT318 (مبادئ الرقابة والمراجعة)</div>
+                <select class="status-select" onchange="updateCourseStatus('ACT4224', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+                <div class="blocked-msg">⛔ غير متاح: يتطلب النجاح في مقرر ACT318 أولاً</div>
+            </div>
+            <div class="course-item" id="card-ACT4225" data-code="ACT4225">
+                <div class="course-header"><span class="course-code">ACT4225</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">قضايا محاسبية معاصرة</span>
+                    <span class="course-title-en">Contemporary Accounting Issues</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('ACT4225', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-ECO4224_ACT" data-code="ECO4224">
+                <div class="course-header"><span class="course-code">ECO4224</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">تنمية إقتصادية</span>
+                    <span class="course-title-en">Economic Development</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('ECO4224', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-DQT427_ACT" data-code="DQT427" data-prereq="DQT224">
+                <div class="course-header"><span class="course-code">DQT427</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">بحوث العمليات</span>
+                    <span class="course-title-en">Operations Research</span>
+                </div>
+                <div class="prereq-tag">المتطلب السابق: DQT224 (الإحصاء الاستدلالي)</div>
+                <select class="status-select" onchange="updateCourseStatus('DQT427', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+                <div class="blocked-msg">⛔ غير متاح: يتطلب النجاح في مقرر DQT224 أولاً</div>
+            </div>
+            <div class="course-item elective" id="card-ELECTIVE8_ACT">
+                <div class="course-header"><span class="course-code" id="elective8_act-code">اختياري</span><span>3 ساعات</span></div>
+                <div style="margin-bottom: 5px; font-weight: bold; font-size: 13px;">اختر المقرر الاختياري:</div>
+                <select class="elective-select" id="elective8_act-choice" onchange="handleElectiveChoice('ELECTIVE8_ACT', this.value)">
+                    <option value="">-- اختر مقراً من بين المقررين --</option>
+                    <option value="ACT4226">ACT4226 - معايير المحاسبة</option>
+                    <option value="ACT4227">ACT4227 - المحاسبة وحوكمة الشركات</option>
+                </select>
+                <select class="status-select" id="elective8_act-status" style="display:none;" onchange="updateElectiveStatus('ELECTIVE8_ACT', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= تخصص الإدارة المالية والاستثمار ================= -->
+<div id="track-FIN_INV" class="track-section">
+    <div class="level-header"><span>المستوى الثالث - تخصص الإدارة المالية والاستثمار</span><span>عدد الساعات: 36 ساعة</span></div>
+    <div class="grid-container">
+        <div class="semester-card">
+            <div class="semester-title"><span>الفصل الدراسي الخامس</span><span>18 ساعة</span></div>
+            <div class="course-item" id="card-ECO315_FIN" data-code="ECO315">
+                <div class="course-header"><span class="course-code">ECO315</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">دراسات اقتصادية بلغة إنجليزية</span>
+                    <span class="course-title-en">Economic Studies in English</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('ECO315', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-MAN317_FIN" data-code="MAN317" data-prereq="MAN111">
+                <div class="course-header"><span class="course-code">MAN317</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">الإدارة الإستراتيجية</span>
+                    <span class="course-title-en">Strategic Management</span>
+                </div>
+                <div class="prereq-tag">المتطلب السابق: MAN111 (أساسيات إدارة الأعمال)</div>
+                <select class="status-select" onchange="updateCourseStatus('MAN317', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+                <div class="blocked-msg">⛔ غير متاح: يتطلب النجاح في مقرر MAN111 أولاً</div>
+            </div>
+            <div class="course-item" id="card-MAN3128" data-code="MAN3128">
+                <div class="course-header"><span class="course-code">MAN3128</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">أساسيات إدارة وتنظيم البنوك</span>
+                    <span class="course-title-en">Fundamentals of Banks Organizing and Management</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN3128', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-ACT317_FIN" data-code="ACT317">
+                <div class="course-header"><span class="course-code">ACT317</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">مبادئ محاسبة التكاليف</span>
+                    <span class="course-title-en">Principles of Cost Accounting</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('ACT317', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-ECO316_FIN" data-code="ECO316">
+                <div class="course-header"><span class="course-code">ECO316</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">اقتصاديات المالية العامة</span>
+                    <span class="course-title-en">Public Finance Economics</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('ECO316', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item elective" id="card-ELECTIVE5_FIN">
+                <div class="course-header"><span class="course-code" id="elective5_fin-code">اختياري</span><span>3 ساعات</span></div>
+                <div style="margin-bottom: 5px; font-weight: bold; font-size: 13px;">اختر المقرر الاختياري:</div>
+                <select class="elective-select" id="elective5_fin-choice" onchange="handleElectiveChoice('ELECTIVE5_FIN', this.value)">
+                    <option value="">-- اختر مقراً من بين المقررين --</option>
+                    <option value="MAN319">MAN319 - الإدارة الإلكترونية</option>
+                    <option value="MAN3110">MAN3110 - تطبيقات إدارية على الحاسب</option>
+                </select>
+                <select class="status-select" id="elective5_fin-status" style="display:none;" onchange="updateElectiveStatus('ELECTIVE5_FIN', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="semester-card">
+            <div class="semester-title"><span>الفصل الدراسي السادس</span><span>18 ساعة</span></div>
+            <div class="course-item" id="card-MAN3229" data-code="MAN3229">
+                <div class="course-header"><span class="course-code">MAN3229</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">إدارة الخطوط الأمامية</span>
+                    <span class="course-title-en">Front Line Management</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN3229', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-MAN3230" data-code="MAN3230">
+                <div class="course-header"><span class="course-code">MAN3230</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">السوق المالي المصري</span>
+                    <span class="course-title-en">The Egyptian Financial Market</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN3230', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-MAN3231" data-code="MAN3231">
+                <div class="course-header"><span class="course-code">MAN3231</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">إدارة الائتمان</span>
+                    <span class="course-title-en">Credit Management</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN3231', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-MAN3214_FIN" data-code="MAN3214">
+                <div class="course-header"><span class="course-code">MAN3214</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">الإدارة المالية والتمويل</span>
+                    <span class="course-title-en">Financial Management & Finance</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN3214', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-DQT326_FIN" data-code="DQT326" data-prereq="DQT112">
+                <div class="course-header"><span class="course-code">DQT326</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">برمجيات إحصائية للتجاريين</span>
+                    <span class="course-title-en">Commercial Computer Programming</span>
+                </div>
+                <div class="prereq-tag">المتطلب السابق: DQT112 (مقدمة في الحاسب الآلي للتجاريين)</div>
+                <select class="status-select" onchange="updateCourseStatus('DQT326', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+                <div class="blocked-msg">⛔ غير متاح: يتطلب النجاح في مقرر DQT112 أولاً</div>
+            </div>
+            <div class="course-item elective" id="card-ELECTIVE6_FIN">
+                <div class="course-header"><span class="course-code" id="elective6_fin-code">اختياري</span><span>3 ساعات</span></div>
+                <div style="margin-bottom: 5px; font-weight: bold; font-size: 13px;">اختر المقرر الاختياري:</div>
+                <select class="elective-select" id="elective6_fin-choice" onchange="handleElectiveChoice('ELECTIVE6_FIN', this.value)">
+                    <option value="">-- اختر مقراً من بين المقررين --</option>
+                    <option value="MAN3215">MAN3215 - إدارة الجودة الشاملة</option>
+                    <option value="MAN3216">MAN3216 - إدارة الأزمات</option>
+                </select>
+                <select class="status-select" id="elective6_fin-status" style="display:none;" onchange="updateElectiveStatus('ELECTIVE6_FIN', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="level-header"><span>المستوى الرابع - تخصص الإدارة المالية والاستثمار</span><span>عدد الساعات: 36 ساعة</span></div>
+    <div class="grid-container">
+        <div class="semester-card">
+            <div class="semester-title"><span>الفصل الدراسي السابع</span><span>18 ساعة</span></div>
+            <div class="course-item" id="card-MAN4132" data-code="MAN4132">
+                <div class="course-header"><span class="course-code">MAN4132</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">إدارة المخاطر البنكية</span>
+                    <span class="course-title-en">Banking Risk Management</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN4132', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-MAN4133" data-code="MAN4133">
+                <div class="course-header"><span class="course-code">MAN4133</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">تسويق الخدمات المصرفية</span>
+                    <span class="course-title-en">Marketing of Banking Services</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN4133', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-MAN4134" data-code="MAN4134">
+                <div class="course-header"><span class="course-code">MAN4134</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">حالات دراسية في البنوك والأسواق المالية</span>
+                    <span class="course-title-en">Banking & Financial Markets Case Studies</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN4134', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-MAN4120_FIN" data-code="MAN4120">
+                <div class="course-header"><span class="course-code">MAN4120</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">إدارة المشروعات الاستثمارية</span>
+                    <span class="course-title-en">Investment Projects Management</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN4120', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-ACT419_FIN" data-code="ACT419">
+                <div class="course-header"><span class="course-code">ACT419</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">محاسبة إدارية</span>
+                    <span class="course-title-en">Managerial Accounting</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('ACT419', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item elective" id="card-ELECTIVE7_FIN">
+                <div class="course-header"><span class="course-code" id="elective7_fin-code">اختياري</span><span>3 ساعات</span></div>
+                <div style="margin-bottom: 5px; font-weight: bold; font-size: 13px;">اختر المقرر الاختياري:</div>
+                <select class="elective-select" id="elective7_fin-choice" onchange="handleElectiveChoice('ELECTIVE7_FIN', this.value)">
+                    <option value="">-- اختر مقراً من بين المقررين --</option>
+                    <option value="MAN4121">MAN4121 - إدارة التفاوض</option>
+                    <option value="MAN4122">MAN4122 - إدارة الصراع وضغوط العمل</option>
+                </select>
+                <select class="status-select" id="elective7_fin-status" style="display:none;" onchange="updateElectiveStatus('ELECTIVE7_FIN', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="semester-card">
+            <div class="semester-title"><span>الفصل الدراسي الثامن</span><span>18 ساعة</span></div>
+            <div class="course-item" id="card-MAN4235" data-code="MAN4235">
+                <div class="course-header"><span class="course-code">MAN4235</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">إدارة محافط الأوراق المالية</span>
+                    <span class="course-title-en">Securities Portfolio Management</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN4235', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-MAN4236" data-code="MAN4236">
+                <div class="course-header"><span class="course-code">MAN4236</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">معاملات مالية معاصرة</span>
+                    <span class="course-title-en">Contemporary Financial Transactions</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN4236', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-DQT427_FIN" data-code="DQT427" data-prereq="DQT224">
+                <div class="course-header"><span class="course-code">DQT427</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">بحوث العمليات</span>
+                    <span class="course-title-en">Operation Research</span>
+                </div>
+                <div class="prereq-tag">المتطلب السابق: DQT224 (الإحصاء الاستدلالي)</div>
+                <select class="status-select" onchange="updateCourseStatus('DQT427', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+                <div class="blocked-msg">⛔ غير متاح: يتطلب النجاح في مقرر DQT224 أولاً</div>
+            </div>
+            <div class="course-item" id="card-ECO4221" data-code="ECO4221">
+                <div class="course-header"><span class="course-code">ECO4221</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">تنمية اقتصادية</span>
+                    <span class="course-title-en">Economic Development</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('ECO4221', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-MAN4225_FIN" data-code="MAN4225">
+                <div class="course-header"><span class="course-code">MAN4225</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">بحث تخرج</span>
+                    <span class="course-title-en">Graduation Research</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN4225', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item elective" id="card-ELECTIVE8_FIN">
+                <div class="course-header"><span class="course-code" id="elective8_fin-code">اختياري</span><span>3 ساعات</span></div>
+                <div style="margin-bottom: 5px; font-weight: bold; font-size: 13px;">اختر المقرر الاختياري:</div>
+                <select class="elective-select" id="elective8_fin-choice" onchange="handleElectiveChoice('ELECTIVE8_FIN', this.value)">
+                    <option value="">-- اختر مقراً من بين المقررين --</option>
+                    <option value="MAN4226">MAN4226 - اتخاذ قرارات - مدخل كمي (يتطلب MAN111)</option>
+                    <option value="MAN4227">MAN4227 - قضايا إدارية معاصرة</option>
+                </select>
+                <select class="status-select" id="elective8_fin-status" style="display:none;" onchange="updateElectiveStatus('ELECTIVE8_FIN', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= تخصص نظم معلومات الاعمال BIS ================= -->
+<div id="track-BIS" class="track-section">
+    <div class="level-header"><span>المستوى الثالث - تخصص نظم معلومات الاعمال BIS</span><span>عدد الساعات: 36 ساعة</span></div>
+    <div class="grid-container">
+        <div class="semester-card">
+            <div class="semester-title"><span>الفصل الدراسي الخامس</span><span>18 ساعة</span></div>
+            <div class="course-item" id="card-DQT318" data-code="DQT318" data-prereq="DQT112">
+                <div class="course-header"><span class="course-code">DQT318</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">نظم المعلومات المتقدمة</span>
+                    <span class="course-title-en">Advanced Information System</span>
+                </div>
+                <div class="prereq-tag">المتطلب السابق: DQT112 (مقدمة في الحاسب الآلي للتجاريين)</div>
+                <select class="status-select" onchange="updateCourseStatus('DQT318', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+                <div class="blocked-msg">⛔ غير متاح: يتطلب النجاح في مقرر DQT112 أولاً</div>
+            </div>
+            <div class="course-item" id="card-DQT319" data-code="DQT319">
+                <div class="course-header"><span class="course-code">DQT319</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">إدارة قواعد البيانات</span>
+                    <span class="course-title-en">Database Management</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('DQT319', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-MAN319_BIS" data-code="MAN319">
+                <div class="course-header"><span class="course-code">MAN319</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">الإدارة الإلكترونية</span>
+                    <span class="course-title-en">E-Management</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN319', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-DQT3110" data-code="DQT3110">
+                <div class="course-header"><span class="course-code">DQT3110</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">برمجة وسائل التواصل للتسويق</span>
+                    <span class="course-title-en">Programming Social Media for Marketing</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('DQT3110', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-ACT317_BIS" data-code="ACT317">
+                <div class="course-header"><span class="course-code">ACT317</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">مبادئ محاسبة التكاليف</span>
+                    <span class="course-title-en">Principles of Cost Accounting</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('ACT317', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item elective" id="card-ELECTIVE5_BIS">
+                <div class="course-header"><span class="course-code" id="elective5_bis-code">اختياري</span><span>3 ساعات</span></div>
+                <div style="margin-bottom: 5px; font-weight: bold; font-size: 13px;">اختر المقرر الاختياري:</div>
+                <select class="elective-select" id="elective5_bis-choice" onchange="handleElectiveChoice('ELECTIVE5_BIS', this.value)">
+                    <option value="">-- اختر مقراً من بين المقررين --</option>
+                    <option value="DQT3111">DQT3111 - البيانات الضخمة (Big Data)</option>
+                    <option value="DQT3112">DQT3112 - مناهج البحث الكمي (Quantitative Research Methods)</option>
+                </select>
+                <select class="status-select" id="elective5_bis-status" style="display:none;" onchange="updateElectiveStatus('ELECTIVE5_BIS', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="semester-card">
+            <div class="semester-title"><span>الفصل الدراسي السادس</span><span>18 ساعة</span></div>
+            <div class="course-item" id="card-DQT3213" data-code="DQT3213">
+                <div class="course-header"><span class="course-code">DQT3213</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">الوسائط المتعددة</span>
+                    <span class="course-title-en">Multimedia</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('DQT3213', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-DQT3214" data-code="DQT3214">
+                <div class="course-header"><span class="course-code">DQT3214</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">مقدمة في البرمجة</span>
+                    <span class="course-title-en">Introduction to Programming</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('DQT3214', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-DQT3215" data-code="DQT3215" data-prereq="DQT319">
+                <div class="course-header"><span class="course-code">DQT3215</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">أساسيات تصميم المواقع</span>
+                    <span class="course-title-en">Web Design Fundamentals</span>
+                </div>
+                <div class="prereq-tag">المتطلب السابق: DQT319 (إدارة قواعد البيانات)</div>
+                <select class="status-select" onchange="updateCourseStatus('DQT3215', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+                <div class="blocked-msg">⛔ غير متاح: يتطلب النجاح في مقرر DQT319 أولاً</div>
+            </div>
+            <div class="course-item" id="card-DQT326_BIS" data-code="DQT326" data-prereq="DQT224">
+                <div class="course-header"><span class="course-code">DQT326</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">برمجيات إحصائية للتجاريين</span>
+                    <span class="course-title-en">Statistical Software for Business</span>
+                </div>
+                <div class="prereq-tag">المتطلب السابق: DQT224 (الإحصاء الاستدلالي)</div>
+                <select class="status-select" onchange="updateCourseStatus('DQT326', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+                <div class="blocked-msg">⛔ غير متاح: يتطلب النجاح في مقرر DQT224 أولاً</div>
+            </div>
+            <div class="course-item" id="card-MAN3214_BIS" data-code="MAN3214">
+                <div class="course-header"><span class="course-code">MAN3214</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">الإدارة المالية والتمويل</span>
+                    <span class="course-title-en">Financial Management and Finance</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN3214', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item elective" id="card-ELECTIVE6_BIS">
+                <div class="course-header"><span class="course-code" id="elective6_bis-code">اختياري</span><span>3 ساعات</span></div>
+                <div style="margin-bottom: 5px; font-weight: bold; font-size: 13px;">اختر المقرر الاختياري:</div>
+                <select class="elective-select" id="elective6_bis-choice" onchange="handleElectiveChoice('ELECTIVE6_BIS', this.value)">
+                    <option value="">-- اختر مقراً من بين المقررين --</option>
+                    <option value="DQT3216">DQT3216 - تطبيقات الحاسب في الأعمال (Computer Applications in Business)</option>
+                    <option value="DQT3217">DQT3217 - هندسة البرمجيات (Software Engineering)</option>
+                </select>
+                <select class="status-select" id="elective6_bis-status" style="display:none;" onchange="updateElectiveStatus('ELECTIVE6_BIS', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="level-header"><span>المستوى الرابع - تخصص نظم معلومات الاعمال BIS</span><span>عدد الساعات: 36 ساعة</span></div>
+    <div class="grid-container">
+        <div class="semester-card">
+            <div class="semester-title"><span>الفصل الدراسي السابع</span><span>18 ساعة</span></div>
+            <div class="course-item" id="card-DQT4118" data-code="DQT4118">
+                <div class="course-header"><span class="course-code">DQT4118</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">استرجاع المعلومات وتحسين محركات البحث</span>
+                    <span class="course-title-en">Information Retrieval (SEO)</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('DQT4118', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-DQT4119" data-code="DQT4119">
+                <div class="course-header"><span class="course-code">DQT4119</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">الشبكات والأمن السيبراني</span>
+                    <span class="course-title-en">Networks and Security</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('DQT4119', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-DQT4120" data-code="DQT4120">
+                <div class="course-header"><span class="course-code">DQT4120</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">مشروع التخرج 1</span>
+                    <span class="course-title-en">Graduation Project 1</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('DQT4120', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-MAN4120_BIS" data-code="MAN4120">
+                <div class="course-header"><span class="course-code">MAN4120</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">إدارة المشروعات الاستثمارية</span>
+                    <span class="course-title-en">Investment Projects Management</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN4120', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-ACT4119_BIS" data-code="ACT4119">
+                <div class="course-header"><span class="course-code">ACT4119</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">محاسبة إدارية</span>
+                    <span class="course-title-en">Managerial Accounting</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('ACT4119', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item elective" id="card-ELECTIVE7_BIS">
+                <div class="course-header"><span class="course-code" id="elective7_bis-code">اختياري</span><span>3 ساعات</span></div>
+                <div style="margin-bottom: 5px; font-weight: bold; font-size: 13px;">اختر المقرر الاختياري:</div>
+                <select class="elective-select" id="elective7_bis-choice" onchange="handleElectiveChoice('ELECTIVE7_BIS', this.value)">
+                    <option value="">-- اختر مقراً من بين المقررين --</option>
+                    <option value="DQT4121">DQT4121 - البرمجة المتقدمة (تتطلب DQT3214)</option>
+                    <option value="DQT4122">DQT4122 - برمجة المواقع (تتطلب DQT3215)</option>
+                </select>
+                <select class="status-select" id="elective7_bis-status" style="display:none;" onchange="updateElectiveStatus('ELECTIVE7_BIS', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="semester-card">
+            <div class="semester-title"><span>الفصل الدراسي الثامن</span><span>18 ساعة</span></div>
+            <div class="course-item" id="card-ECO4221_BIS" data-code="ECO4221">
+                <div class="course-header"><span class="course-code">ECO4221</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">تنمية اقتصادية</span>
+                    <span class="course-title-en">Economic Development</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('ECO4221', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-DQT4223" data-code="DQT4223">
+                <div class="course-header"><span class="course-code">DQT4223</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">الذكاء الاصطناعي في الأعمال</span>
+                    <span class="course-title-en">Artificial Intelligence in Business</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('DQT4223', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-DQT4224" data-code="DQT4224">
+                <div class="course-header"><span class="course-code">DQT4224</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">مشروع التخرج 2</span>
+                    <span class="course-title-en">Graduation Project 2</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('DQT4224', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-MAN4237" data-code="MAN4237">
+                <div class="course-header"><span class="course-code">MAN4237</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">نظم دعم القرار</span>
+                    <span class="course-title-en">Decision Support Systems</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('MAN4237', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item" id="card-DQT4225" data-code="DQT4225">
+                <div class="course-header"><span class="course-code">DQT4225</span><span>3 ساعات</span></div>
+                <div class="course-titles-inline">
+                    <span class="course-title-ar">التجارة الإلكترونية المتقدمة</span>
+                    <span class="course-title-en">Advanced E-Commerce</span>
+                </div>
+                <select class="status-select" onchange="updateCourseStatus('DQT4225', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+            <div class="course-item elective" id="card-ELECTIVE8_BIS">
+                <div class="course-header"><span class="course-code" id="elective8_bis-code">اختياري</span><span>3 ساعات</span></div>
+                <div style="margin-bottom: 5px; font-weight: bold; font-size: 13px;">اختر المقرر الاختياري:</div>
+                <select class="elective-select" id="elective8_bis-choice" onchange="handleElectiveChoice('ELECTIVE8_BIS', this.value)">
+                    <option value="">-- اختر مقراً من بين المقررين --</option>
+                    <option value="DQT4226">DQT4226 - نظم الحوسبة السحابية (Cloud Computing Systems)</option>
+                    <option value="DQT4227">DQT4227 - نظم التخطيط الموارد (ERP Systems)</option>
+                </select>
+                <select class="status-select" id="elective8_bis-status" style="display:none;" onchange="updateElectiveStatus('ELECTIVE8_BIS', this.value)">
+                    <option value="not_taken">لم يتحدد / قيد الدراسة</option>
+                    <option value="passed">ناجح (Passed)</option>
+                    <option value="failed">راسب (Failed)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const courseStatuses = {};
+    const electiveChoices = {};
+
+    function handleTrackChange() {
+        const selectedTrack = document.getElementById('trackSelect').value;
+        const tracks = document.querySelectorAll('.track-section');
+        tracks.forEach(track => track.classList.remove('active'));
+        
+        const targetTrack = document.getElementById('track-' + selectedTrack);
+        if (targetTrack) {
+            targetTrack.classList.add('active');
+        }
+        checkPrerequisites();
+    }
+
+    function handleProgramChange() {
+        const lang = document.getElementById('programLanguage').value;
+        
+        // تأثير لغة الدراسة على مقررات دراسات إدارية، محاسبية واقتصادية
+        const act123Ar = document.getElementById('title-ACT123-ar');
+        const act123En = document.getElementById('title-ACT123-en');
+        const man214Ar = document.getElementById('title-MAN214-ar');
+        const man214En = document.getElementById('title-MAN214-en');
+        const eco315Ar = document.getElementById('title-ECO315-ar');
+        const eco315En = document.getElementById('title-ECO315-en');
+
+        if (lang === 'en') {
+            if(act123Ar) act123Ar.textContent = "دراسات محاسبية (برنامج إنجليزي متقدم)";
+            if(act123En) act123En.textContent = "Advanced Accounting Studies in English";
+            if(man214Ar) man214Ar.textContent = "دراسات إدارية (برنامج إنجليزي متقدم)";
+            if(man214En) man214En.textContent = "Advanced Managerial Studies in English";
+            if(eco315Ar) eco315Ar.textContent = "دراسات إقتصادية (برنامج إنجليزي متقدم)";
+            if(eco315En) eco315En.textContent = "Advanced Economic Studies in English";
+        } else {
+            if(act123Ar) act123Ar.textContent = "دراسات محاسبية بلغة انجليزية";
+            if(act123En) act123En.textContent = "Accounting Studies in English";
+            if(man214Ar) man214Ar.textContent = "دراسات إدارية بلغة انجليزية";
+            if(man214En) man214En.textContent = "Managerial Studies in English";
+            if(eco315Ar) eco315Ar.textContent = "دراسات اقتصادية بلغة إنجليزية";
+            if(eco315En) eco315En.textContent = "Economic Studies in English";
+        }
+    }
+
+    function updateAcademicLoad() {
+        const gpaVal = document.getElementById('gpaSelect').value;
+        const maxHoursSpan = document.getElementById('maxHours');
+        if (gpaVal >= 2) {
+            maxHoursSpan.textContent = "18";
+        } else {
+            maxHoursSpan.textContent = "12";
+        }
+    }
+
+    function updateCourseStatus(courseCode, status) {
+        courseStatuses[courseCode] = status;
+        const card = document.getElementById('card-' + courseCode);
+        if (card) {
+            card.classList.remove('passed', 'blocked');
+            if (status === 'passed') {
+                card.classList.add('passed');
+            }
+        }
+        
+        // التحقق من المقررات الاختيارية المتصلة بنفس الكود المشترك
+        for (let key in electiveChoices) {
+            if (electiveChoices[key] === courseCode && status === 'passed') {
+                const elCard = document.getElementById('card-' + key);
+                if (elCard) elCard.classList.add('passed');
+            }
+        }
+        checkPrerequisites();
+    }
+
+    function handleElectiveChoice(electiveKey, chosenCode) {
+        electiveChoices[electiveKey] = chosenCode;
+        const statusSelectId = electiveKey.toLowerCase() + '-status';
+        const statusSelect = document.getElementById(statusSelectId);
+        const codeSpan = document.getElementById(electiveKey.toLowerCase() + '-code');
+        
+        if (chosenCode) {
+            statusSelect.style.display = 'block';
+            codeSpan.textContent = chosenCode;
+            const realStatus = statusSelect.value;
+            courseStatuses[chosenCode] = realStatus;
+            
+            const card = document.getElementById('card-' + electiveKey);
+            card.classList.remove('passed', 'blocked');
+            if (realStatus === 'passed') {
+                card.classList.add('passed');
+            }
+        } else {
+            statusSelect.style.display = 'none';
+            codeSpan.textContent = "اختياري";
+            const card = document.getElementById('card-' + electiveKey);
+            card.classList.remove('passed', 'blocked');
+        }
+        checkPrerequisites();
+    }
+
+    function updateElectiveStatus(electiveKey, status) {
+        const chosenCode = electiveChoices[electiveKey];
+        if (chosenCode) {
+            courseStatuses[chosenCode] = status;
+            const card = document.getElementById('card-' + electiveKey);
+            card.classList.remove('passed', 'blocked');
+            if (status === 'passed') {
+                card.classList.add('passed');
+            }
+        }
+        checkPrerequisites();
+    }
+
+    function checkPrerequisites() {
+        const courseItems = document.querySelectorAll('.course-item');
+        courseItems.forEach(item => {
+            const prereq = item.getAttribute('data-prereq');
+            if (prereq) {
+                const isPassed = courseStatuses[prereq] === 'passed';
+                const code = item.getAttribute('data-code');
+                const isThisPassed = courseStatuses[code] === 'passed';
+                
+                if (!isPassed && !isThisPassed) {
+                    item.classList.add('blocked');
+                } else {
+                    item.classList.remove('blocked');
+                }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
